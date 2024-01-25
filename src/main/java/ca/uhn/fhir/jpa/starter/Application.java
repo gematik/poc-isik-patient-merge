@@ -30,7 +30,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 @ServletComponentScan(basePackageClasses = {RestfulServer.class})
-@SpringBootApplication(exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
+@SpringBootApplication(scanBasePackages  = {"de.gematik.provider", "ca.uhn.fhir.jpa.starter"}, exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
 @Import({
 	StarterCrR4Config.class,
 	StarterCrDstu3Config.class,

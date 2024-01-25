@@ -61,6 +61,7 @@ import ca.uhn.fhir.rest.server.util.ISearchParamRegistry;
 import ca.uhn.fhir.validation.IValidatorModule;
 import ca.uhn.fhir.validation.ResultSeverityEnum;
 import com.google.common.base.Strings;
+import de.gematik.provider.PatientMergeOperationProvider;
 import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -273,7 +274,8 @@ public class StarterJpaConfig {
 			ThreadSafeResourceDeleterSvc theThreadSafeResourceDeleterSvc,
 			ApplicationContext appContext,
 			Optional<IpsOperationProvider> theIpsOperationProvider,
-			Optional<IImplementationGuideOperationProvider> implementationGuideOperationProvider) {
+			Optional<IImplementationGuideOperationProvider> implementationGuideOperationProvider,
+			PatientMergeOperationProvider patientMergeOperationProvider) {
 		RestfulServer fhirServer = new RestfulServer(fhirSystemDao.getContext());
 
 		List<String> supportedResourceTypes = appProperties.getSupported_resource_types();
@@ -454,6 +456,9 @@ public class StarterJpaConfig {
 		if (!theIpsOperationProvider.isEmpty()) {
 			fhirServer.registerProvider(theIpsOperationProvider.get());
 		}
+
+		//register patientMergeProvider
+		fhirServer.registerProvider(patientMergeOperationProvider);
 
 		return fhirServer;
 	}
