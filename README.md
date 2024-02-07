@@ -1,3 +1,35 @@
+# Prove of Concept for ISiK Patient merge
+This POC aims to prove a patient merge notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
+
+## How does it Work?
+
+### How to test (after installation)
+The following steps simulate the merge notification workflow:
+
+1. subscribe to the patient-merge Subscription topic  (https://gematik.de/fhir/isik/v4/Basismodul/topics/patient-merge)
+1. create to dummy Patients for the merge
+1. trigger a patient merge (in order to start the POC workflow)
+1. receive a notification
+
+Follow this checklist to enact the steps mentioned above:
+1. tbd. 
+1. ... 
+
+... postman Collection with examples (tbd.)
+
+### Components
+
+####  Server - HAPI-Server (modified)
+Ein modifizierter HAPI simuliert das KIS:
+- Patient merge operation ($patient-merge) was implemented (as MVP) and is needed to trigger the merge
+- Support for Subscription criteria based on ...
+
+#### Client - Postman
+... postman Collection with examples (tbd.)
+
+## Installation
+POC is built on top of HAPI-FHIR(https://github.com/hapifhir/hapi-fhir-jpaserver-starter) (see below)
+
 # HAPI-FHIR Starter Project
 
 This project is a complete starter project you can use to deploy a FHIR server using HAPI FHIR JPA.
@@ -12,180 +44,9 @@ In order to use this sample, you should have:
 
 - [This project](https://github.com/hapifhir/hapi-fhir-jpaserver-starter) checked out. You may wish to create a GitHub Fork of the project and check that out instead so that you can customize the project and save the results to GitHub.
 
-### and either
  - Oracle Java (JDK) installed: Minimum JDK8 or newer.
  - Apache Maven build tool (newest version)
 
-### or
- - Docker, as the entire project can be built using multistage docker (with both JDK and maven wrapped in docker) or used directly from [Docker Hub](https://hub.docker.com/r/hapiproject/hapi)
-
-## Running via [Docker Hub](https://hub.docker.com/r/hapiproject/hapi)
-
-Each tagged/released version of `hapi-fhir-jpaserver` is built as a Docker image and published to Docker hub. To run the published Docker image from DockerHub:
-
-```
-docker pull hapiproject/hapi:latest
-docker run -p 8080:8080 hapiproject/hapi:latest
-```
-
-This will run the docker image with the default configuration, mapping port 8080 from the container to port 8080 in the host. Once running, you can access `http://localhost:8080/` in the browser to access the HAPI FHIR server's UI or use `http://localhost:8080/fhir/` as the base URL for your REST requests.
-
-If you change the mapped port, you need to change the configuration used by HAPI to have the correct `hapi.fhir.tester` property/value.
-
-### Configuration via environment variables
-
-You can customize HAPI directly from the `run` command using environment variables. For example:
-
-```
-docker run -p 8080:8080 -e hapi.fhir.default_encoding=xml hapiproject/hapi:latest
-```
-
-HAPI looks in the environment variables for properties in the [application.yaml](https://github.com/hapifhir/hapi-fhir-jpaserver-starter/blob/master/src/main/resources/application.yaml) file for defaults.
-
-### Configuration via overridden application.yaml file and using Docker
-
-You can customize HAPI by telling HAPI to look for the configuration file in a different location, eg.:
-
-```
-docker run -p 8090:8080 -v $(pwd)/yourLocalFolder:/configs -e "--spring.config.location=file:///configs/another.application.yaml" hapiproject/hapi:latest
-```
-Here, the configuration file (*another.application.yaml*) is placed locally in the folder *yourLocalFolder*.
-
-
-
-```
-docker run -p 8090:8080 -e "--spring.config.location=classpath:/another.application.yaml" hapiproject/hapi:latest
-```
-Here, the configuration file (*another.application.yaml*) is part of the compiled set of resources.
-
-### Example using ``docker-compose.yml`` for docker-compose
-
-```yaml
-version: '3.7'
-
-services:
-  fhir:
-    container_name: fhir
-    image: "hapiproject/hapi:latest"
-    ports:
-      - "8080:8080"
-    configs:
-      - source: hapi
-        target: /app/config/application.yaml
-    depends_on:
-      - db
-
-
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      POSTGRES_DB: hapi
-    volumes:
-      - ./hapi.postgress.data:/var/lib/postgresql/data
-
-configs:
-  hapi:
-     file: ./hapi.application.yaml
-```
-
-Provide the following content in ``./hapi.aplication.yaml``:
-
-```yaml
-spring:
-  datasource:
-    url: 'jdbc:postgresql://db:5432/hapi'
-    username: admin
-    password: admin
-    driverClassName: org.postgresql.Driver
-  jpa:
-    properties:
-      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
-      hibernate.search.enabled: false
-```
-
-### Example running custom interceptor using docker-compose
-
-This example is an extension of the above one, now adding a custom interceptor.
-
-```yaml
-version: '3.7'
-
-services:
-  fhir:
-    container_name: fhir
-    image: "hapiproject/hapi:latest"
-    ports:
-      - "8080:8080"
-    configs:
-      - source: hapi
-        target: /app/config/application.yaml
-      - source: hapi-extra-classes
-        target: /app/extra-classes
-    depends_on:
-      - db
-
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      POSTGRES_DB: hapi
-    volumes:
-      - ./hapi.postgress.data:/var/lib/postgresql/data
-
-configs:
-  hapi:
-     file: ./hapi.application.yaml
-  hapi-extra-classes:
-     file: ./hapi-extra-classes
-```
-
-Provide the following content in ``./hapi.aplication.yaml``:
-
-```yaml
-spring:
-  datasource:
-    url: 'jdbc:postgresql://db:5432/hapi'
-    username: admin
-    password: admin
-    driverClassName: org.postgresql.Driver
-  jpa:
-    properties:
-      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
-      hibernate.search.enabled: false
-hapi:
-  fhir:
-    custom-bean-packages: the.package.containing.your.interceptor
-    custom-interceptor-classes: the.package.containing.your.interceptor.YourInterceptor
-```
-
-The basic interceptor structure would be like this:
-
-```java
-package the.package.containing.your.interceptor;
-
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.springframework.stereotype.Component;
-
-import ca.uhn.fhir.interceptor.api.Hook;
-import ca.uhn.fhir.interceptor.api.Interceptor;
-import ca.uhn.fhir.interceptor.api.Pointcut;
-
-@Component
-@Interceptor
-public class YourInterceptor
-{
-    @Hook(Pointcut.STORAGE_PRECOMMIT_RESOURCE_CREATED)
-    public void resourceCreated(IBaseResource newResource)
-    {
-        System.out.println("YourInterceptor.resourceCreated");
-    }
-}
-```
 
 ## Running locally
 
