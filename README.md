@@ -7,7 +7,7 @@ This POC aims to prove a patient merge notification based on FHIR Subscription T
 The following steps simulate the merge notification workflow:
 
 1. subscribe to the patient-merge Subscription topic  (https://gematik.de/fhir/isik/v4/Basismodul/topics/patient-merge)
-1. create to dummy Patients for the merge
+1. create two dummy Patients for the merge
 1. trigger a patient merge (in order to start the POC workflow)
 1. receive a notification
 
