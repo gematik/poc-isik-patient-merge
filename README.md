@@ -3,6 +3,18 @@ This POC aims to prove a patient merge notification based on FHIR Subscription T
 
 ## How does it Work?
 
+### Prerequisites
+
+- Postman to use the Postman Collection of the poc-server
+- A rest endpoint accepting the notification bundle (POST on /Bundle)
+  - this can be done with Postman:
+    - Select: Mock servers, create mock server (+)
+    - Request Method: POST
+    - Next
+    - choose a name and create the server
+    - use the displayed url as the endpoint url of your subscription in step: Postman: 2. Subscribe to Patient merge topic
+  - Instead of Postman, a second FHIR server can be used to store the notification bundles
+
 ### How to test
 The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`)
 
@@ -14,6 +26,9 @@ The following steps simulate the merge notification workflow (see Postman Collec
 1. trigger a patient merge `$patient-merge`with source and target patient
    2.  (Postman: 3. merge patients)
 1. receive a notification Bundle
+
+**Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.  
+This has no impact on the delivery of the notification.
 
 ### Components
 
