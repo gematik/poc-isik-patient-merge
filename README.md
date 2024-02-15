@@ -3,32 +3,32 @@ This POC aims to prove a patient merge notification based on FHIR Subscription T
 
 ## How does it Work?
 
-### How to test (after installation)
-The following steps simulate the merge notification workflow:
+### How to test
+The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`)
 
-1. subscribe to the patient-merge Subscription topic  (https://gematik.de/fhir/isik/v4/Basismodul/topics/patient-merge)
-1. create two dummy Patients for the merge
-1. trigger a patient merge (in order to start the POC workflow)
-1. receive a notification
-
-Follow this checklist to enact the steps mentioned above:
-1. tbd. 
-1. ... 
-
-... postman Collection with examples (tbd.)
+1. create patients which should be merged 
+   1. (Postman: 1. Send Patients)
+1. Subscribe to Topic: "http://hl7.org/SubscriptionTopic/patient-merge" 
+   1. (Postman: 2. Subscribe to Patient merge topic)
+   2. modify `.endpoint` to your FHIR-Endpoint which should receive the notifications, Postman Postman mock-server can be used as test-endpoint
+1. trigger a patient merge `$patient-merge`with source and target patient
+   2.  (Postman: 3. merge patients)
+1. receive a notification Bundle
 
 ### Components
 
 ####  Server - HAPI-Server (modified)
-Ein modifizierter HAPI simuliert das KIS:
-- Patient merge operation ($patient-merge) was implemented (as MVP) and is needed to trigger the merge
+This extended hapi server supports a `$patient-merge` operation and serves as a "KIS" mock-up:
+- Patient merge operation ($patient-merge) was implemented (as MVP) and is used to trigger a patient merge
 - Support for Subscription criteria based on ...
 
 #### Client - Postman
-... postman Collection with examples (tbd.)
+Postman Collection with examples (folder: `PostmanCollection`)
 
 ## Installation
 POC is built on top of HAPI-FHIR(https://github.com/hapifhir/hapi-fhir-jpaserver-starter) (see below)
+
+
 
 # HAPI-FHIR Starter Project
 
