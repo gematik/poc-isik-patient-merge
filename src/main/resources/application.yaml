@@ -58,9 +58,9 @@ hapi:
     cr:
       enabled: false
 
-    cdshooks:
-      enabled: true
-      clientIdHeaderName: client_id
+#    cdshooks:
+#      enabled: true
+#      clientIdHeaderName: client_id
 
     ### This enables the swagger-ui at /fhir/swagger-ui/index.html as well as the /fhir/api-docs (see https://hapifhir.io/hapi-fhir/docs/server_plain/openapi.html)
     openapi_enabled: true

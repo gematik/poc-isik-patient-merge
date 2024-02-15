@@ -4,8 +4,10 @@ import ca.uhn.fhir.jpa.api.dao.DaoRegistry;
 import ca.uhn.fhir.jpa.api.dao.IFhirResourceDao;
 import ca.uhn.fhir.jpa.searchparam.SearchParameterMap;
 import ca.uhn.fhir.jpa.subscription.triggering.ISubscriptionTriggeringSvc;
+import ca.uhn.fhir.jpa.topic.SubscriptionTopicDispatcher;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
+import ca.uhn.fhir.rest.api.RestOperationTypeEnum;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +17,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IPrimitiveType;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Patient.LinkType;
 import org.hl7.fhir.r4.model.PrimitiveType;
@@ -28,14 +31,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class PatientMergeOperationProvider {
 
-	private static final String MERGE_TOPIC_CRITERIA = "https://gematik.de/fhir/isik/v4/Basismodul/topics/patient-merge";
+	private static final String MERGE_TOPIC_CRITERIA = "http://hl7.org/SubscriptionTopic/patient-merge";
 	private final DaoRegistry daoRegistry;
-	private final ISubscriptionTriggeringSvc subscriptionTriggeringSvc;
+	private final SubscriptionTopicDispatcher subscriptionTopicDispatcher;
 
 	public PatientMergeOperationProvider(DaoRegistry daoRegistry,
-		ISubscriptionTriggeringSvc subscriptionTriggeringSvc) {
+		SubscriptionTopicDispatcher subscriptionTopicDispatcher) {
 		this.daoRegistry = daoRegistry;
-		this.subscriptionTriggeringSvc = subscriptionTriggeringSvc;
+		this.subscriptionTopicDispatcher = subscriptionTopicDispatcher;
 	}
 
 	@Operation(name = "$patient-merge")
@@ -58,23 +61,12 @@ public class PatientMergeOperationProvider {
 		patientDao.update(sourcePatient);
 		patientDao.update(targetPatient);
 
-		//trigger Subscriptions
-//		IFhirResourceDao subDao = daoRegistry.getResourceDao(ResourceType.Subscription.name());
-//		SearchParameterMap searchParameterMap = new SearchParameterMap();
-//		List<IBaseResource> allResources = subDao.search(searchParameterMap).getAllResources();
-//
-//		List<Subscription> mergeSubscriptions = allResources.stream().map(r -> (Subscription) r)
-//			.filter(r -> r.getCriteria().equals(MERGE_TOPIC_CRITERIA)).collect(Collectors.toList());
-//
-//		List<String> mergeSubIds = mergeSubscriptions.stream().map(Resource::getId)
-//			.collect(Collectors.toList());
-//		List<IPrimitiveType<String>> resourceIds = List.of(
-//			new StringType(sourcePatientRef.getReference()));
-//
-//		mergeSubIds.forEach(
-//			s -> subscriptionTriggeringSvc.triggerSubscription(resourceIds, null, new IdType(s)));
+		subscriptionTopicDispatcher.dispatch(MERGE_TOPIC_CRITERIA, List.of(targetPatient),
+			RestOperationTypeEnum.UPDATE);
 
-		return new OperationOutcome();
+		OperationOutcome operationOutcome = new OperationOutcome();
+		operationOutcome.addIssue().setSeverity(IssueSeverity.INFORMATION).setDiagnostics("Patient merge successful");
+		return operationOutcome;
 	}
 
 }
