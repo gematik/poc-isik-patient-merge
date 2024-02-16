@@ -1,28 +1,27 @@
+<img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/> 
+
 # Prove of Concept for ISiK Patient merge
 
-
 <!-- vscode-markdown-toc -->
-* 1. [About the Project](#AbouttheProject)
-	* 1.1. [Prerequisites](#Prerequisites)
-		* 1.1.1. [Fast Track Running locally](#FastTrackRunninglocally)
-	* 1.2. [How to test](#Howtotest)
-	* 1.3. [Components](#Components)
-		* 1.3.1. [ Server - HAPI-Server (modified)](#Server-HAPI-Servermodified)
-		* 1.3.2. [Client - Postman](#Client-Postman)
-* 2. [Contact](#Contact)
+* [About the Project](#AbouttheProject)
+	* [Prerequisites](#Prerequisites)
+		* [Fast Track Running locally](#FastTrackRunninglocally)
+	* [How to test](#Howtotest)
+	* [Components](#Components)
+		* [ Server - HAPI-Server (modified)](#Server-HAPI-Servermodified)
+		* [Client - Postman](#Client-Postman)
+* [Contact](#Contact)
 
 <!-- vscode-markdown-toc-config
-	numbering=true
+	numbering=false
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --><img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/> 
+<!-- /vscode-markdown-toc -->
 
-
-
-##  1. <a name='AbouttheProject'></a>About the Project
+## <a name='AbouttheProject'></a>About the Project
 This POC aims to prove a patient merge notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
 
-###  1.1. <a name='Prerequisites'></a>Prerequisites
+### <a name='Prerequisites'></a>Prerequisites
 
 - Postman to use the Postman Collection of the poc-server
 - A rest endpoint accepting the notification bundle (POST on /Bundle)
@@ -37,7 +36,7 @@ This POC aims to prove a patient merge notification based on FHIR Subscription T
 
 POC is built on top of [HAPI-FHIR](https://github.com/hapifhir/hapi-fhir-jpaserver-starter).
 
-####  1.1.1. <a name='FastTrackRunninglocally'></a>Fast Track Running locally
+#### <a name='FastTrackRunninglocally'></a>Fast Track Running locally
  
  Using jetty
 ```bash
@@ -45,7 +44,7 @@ mvn clean jetty:run -U
 ```
 For more information on running see [HAPI-FHIR](https://github.com/hapifhir/hapi-fhir-jpaserver-starter).
 
-###  1.2. <a name='Howtotest'></a>How to test
+### <a name='Howtotest'></a>How to test
 The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`)
 
 1. create patients which should be merged 
@@ -60,17 +59,17 @@ The following steps simulate the merge notification workflow (see Postman Collec
 **Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.  
 This has no impact on the delivery of the notification.
 
-###  1.3. <a name='Components'></a>Components
+### <a name='Components'></a>Components
 
-####  1.3.1. <a name='Server-HAPI-Servermodified'></a> Server - HAPI-Server (modified)
+#### <a name='Server-HAPI-Servermodified'></a> Server - HAPI-Server (modified)
 This extended hapi server supports a `$patient-merge` operation and serves as a "KIS" mock-up:
 - Patient merge operation ($patient-merge) was implemented (as MVP) and is used to trigger a patient merge
 - Support for Subscription criteria based on ...
 
-####  1.3.2. <a name='Client-Postman'></a>Client - Postman
+#### <a name='Client-Postman'></a>Client - Postman
 Postman Collection with examples (folder: `PostmanCollection`)
 
-##  2. <a name='Contact'></a>Contact
+## <a name='Contact'></a>Contact
 
 **Team Data – ISiK and ISiP**
 
