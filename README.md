@@ -14,6 +14,7 @@ This POC aims to prove a patient merge notification based on FHIR Subscription T
     - choose a name and create the server
     - use the displayed url as the endpoint url of your subscription in step: Postman: 2. Subscribe to Patient merge topic
   - Instead of Postman, a second FHIR server can be used to store the notification bundles
+    - easiest way to run another fhir server is to use the hapi-fhir docker image: `docker run -p 8081:8080 -e hapi.fhir.allowed_bundle_types=COLLECTION,DOCUMENT,MESSAGE,TRANSACTION,TRANSACTIONRESPONSE,BATCH,BATCHRESPONSE,HISTORY,SEARCHSET hapiproject/hapi:latest`
 
 ### How to test
 The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`)

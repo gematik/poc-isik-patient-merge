@@ -46,7 +46,7 @@
 			"response": []
 		},
 		{
-			"name": "2. Subscribe to Patient merge topic",
+			"name": "2a. Subscribe to Patient merge topic (localhost:8081)",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -59,7 +59,43 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"resourceType\": \"Subscription\",\n    \"meta\": {\n        \"profile\": [\n            \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription\"\n        ]\n    },\n    \"status\": \"requested\",\n    \"reason\": \"Patient merge subscription\",\n    \"criteria\": \"http://hl7.org/SubscriptionTopic/patient-merge\",\n    \"channel\": {\n        \"extension\": [\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-heartbeat-period\",\n                \"valueUnsignedInt\": 86400\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-timeout\",\n                \"valueUnsignedInt\": 60\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-max-count\",\n                \"valuePositiveInt\": 20\n            }\n        ],\n        \"type\": \"rest-hook\",\n        \"endpoint\": \"https://93bc707b-ba7f-4d98-a1d8-74718b2b6b89.mock.pstmn.io\",\n        \"payload\": \"application/fhir+json\",\n        \"_payload\": {\n            \"extension\": [\n                {\n                    \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content\",\n                    \"valueCode\": \" full-resource\"\n                }\n            ]\n        }\n    }\n}",
+					"raw": "{\n    \"resourceType\": \"Subscription\",\n    \"meta\": {\n        \"profile\": [\n            \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription\"\n        ]\n    },\n    \"status\": \"requested\",\n    \"reason\": \"Patient merge subscription\",\n    \"criteria\": \"http://hl7.org/SubscriptionTopic/patient-merge\",\n    \"channel\": {\n        \"extension\": [\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-heartbeat-period\",\n                \"valueUnsignedInt\": 86400\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-timeout\",\n                \"valueUnsignedInt\": 60\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-max-count\",\n                \"valuePositiveInt\": 20\n            }\n        ],\n        \"type\": \"rest-hook\",\n        \"endpoint\": \"http://localhost:8081/fhir/Bundle\",\n        \"payload\": \"application/fhir+json\",\n        \"_payload\": {\n            \"extension\": [\n                {\n                    \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content\",\n                    \"valueCode\": \"full-resource\"\n                }\n            ]\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/fhir/Subscription/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"fhir",
+						"Subscription",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2b. Subscribe to Patient merge topic (postman mock server)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "return=representation",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"resourceType\": \"Subscription\",\n    \"meta\": {\n        \"profile\": [\n            \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription\"\n        ]\n    },\n    \"status\": \"requested\",\n    \"reason\": \"Patient merge subscription\",\n    \"criteria\": \"http://hl7.org/SubscriptionTopic/patient-merge\",\n    \"channel\": {\n        \"extension\": [\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-heartbeat-period\",\n                \"valueUnsignedInt\": 86400\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-timeout\",\n                \"valueUnsignedInt\": 60\n            },\n            {\n                \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-max-count\",\n                \"valuePositiveInt\": 20\n            }\n        ],\n        \"type\": \"rest-hook\",\n        \"endpoint\": \"https://93bc707b-ba7f-4d98-a1d8-74718b2b6b89.mock.pstmn.io\",\n        \"payload\": \"application/fhir+json\",\n        \"_payload\": {\n            \"extension\": [\n                {\n                    \"url\": \"http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content\",\n                    \"valueCode\": \"full-resource\"\n                }\n            ]\n        }\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
