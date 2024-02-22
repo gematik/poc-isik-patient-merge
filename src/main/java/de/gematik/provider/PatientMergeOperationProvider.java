@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PatientMergeOperationProvider {
 
-	private static final String MERGE_TOPIC_CRITERIA = "http://hl7.org/SubscriptionTopic/patient-merge";
+	private static final String MERGE_TOPIC_CRITERIA = "https://gematik.de/fhir/isik/SubscriptionTopic/patient-merge";
 	private final DaoRegistry daoRegistry;
 	private final SubscriptionTopicDispatcher subscriptionTopicDispatcher;
 
