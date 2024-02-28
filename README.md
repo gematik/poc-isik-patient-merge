@@ -19,7 +19,7 @@
 <!-- /vscode-markdown-toc -->
 
 ## <a name='AbouttheProject'></a>About the Project
-This POC aims to prove a patient merge notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
+This POC aims to prove a Patient merge Notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
 
 ### <a name='Prerequisites'></a>Prerequisites
 
