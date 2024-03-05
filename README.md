@@ -19,7 +19,7 @@
 <!-- /vscode-markdown-toc -->
 
 ## <a name='AbouttheProject'></a>About the Project
-This POC aims to prove a patient merge notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
+This POC aims to prove a Patient merge Notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
 
 ### <a name='Prerequisites'></a>Prerequisites
 
@@ -45,7 +45,7 @@ mvn clean jetty:run -U
 For more information on running see [HAPI-FHIR](https://github.com/hapifhir/hapi-fhir-jpaserver-starter).
 
 ### <a name='Howtotest'></a>How to test
-The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`)
+The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`):
 
 1. create patients which should be merged 
    1. (Postman: 1. Send Patients)
