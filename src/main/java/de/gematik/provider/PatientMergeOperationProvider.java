@@ -9,13 +9,17 @@ import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
 import ca.uhn.fhir.rest.api.RestOperationTypeEnum;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.server.exceptions.PreconditionFailedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.hibernate.type.IdentifierType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IPrimitiveType;
 import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
 import org.hl7.fhir.r4.model.Patient;
@@ -55,8 +59,13 @@ public class PatientMergeOperationProvider {
 
 		sourcePatient.setActive(false);
 		sourcePatient.addLink().setType(LinkType.REPLACEDBY).setOther(targetPatientRef);
+		Optional<Identifier> pid = sourcePatient.getIdentifier().stream()
+			.filter(i -> i.getType().getCoding().stream().anyMatch(t -> t.getCode().equals("MR"))).findFirst();
 
-		targetPatient.addLink().setType(LinkType.REPLACES).setOther(sourcePatientRef);
+		if (pid.isEmpty()){
+			throw new PreconditionFailedException("Patients need a populated PID (Identifier.type = MR)");
+		}
+		targetPatient.addLink().setType(LinkType.REPLACES).getOther().setIdentifier(pid.get());
 
 		patientDao.update(sourcePatient);
 		patientDao.update(targetPatient);
@@ -65,7 +74,8 @@ public class PatientMergeOperationProvider {
 			RestOperationTypeEnum.UPDATE);
 
 		OperationOutcome operationOutcome = new OperationOutcome();
-		operationOutcome.addIssue().setSeverity(IssueSeverity.INFORMATION).setDiagnostics("Patient merge successful");
+		operationOutcome.addIssue().setSeverity(IssueSeverity.INFORMATION)
+			.setDiagnostics("Patient merge successful");
 		return operationOutcome;
 	}
 
