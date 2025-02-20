@@ -4,7 +4,6 @@ import ca.uhn.fhir.batch2.jobs.config.Batch2JobsConfig;
 import ca.uhn.fhir.jpa.batch2.JpaBatch2Config;
 import ca.uhn.fhir.jpa.starter.annotations.OnEitherVersion;
 import ca.uhn.fhir.jpa.starter.cdshooks.StarterCdsHooksConfig;
-import ca.uhn.fhir.jpa.starter.common.FhirTesterConfig;
 import ca.uhn.fhir.jpa.starter.cr.StarterCrDstu3Config;
 import ca.uhn.fhir.jpa.starter.cr.StarterCrR4Config;
 import ca.uhn.fhir.jpa.starter.mdm.MdmConfig;
@@ -19,15 +18,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 @ServletComponentScan(basePackageClasses = {RestfulServer.class})
 @SpringBootApplication(scanBasePackages  = {"de.gematik.provider", "ca.uhn.fhir.jpa.starter"}, exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
@@ -53,10 +49,6 @@ public class Application extends SpringBootServletInitializer {
 		// UI is now accessible at http://localhost:8080/
 	}
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(Application.class);
-	}
 
 	@Autowired
 	AutowireCapableBeanFactory beanFactory;
@@ -73,26 +65,4 @@ public class Application extends SpringBootServletInitializer {
 		return servletRegistrationBean;
 	}
 
-	@Bean
-	public ServletRegistrationBean overlayRegistrationBean() {
-
-		AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext =
-				new AnnotationConfigWebApplicationContext();
-		annotationConfigWebApplicationContext.register(FhirTesterConfig.class);
-
-		DispatcherServlet dispatcherServlet = new DispatcherServlet(annotationConfigWebApplicationContext);
-		dispatcherServlet.setContextClass(AnnotationConfigWebApplicationContext.class);
-		dispatcherServlet.setContextConfigLocation(FhirTesterConfig.class.getName());
-
-		ServletRegistrationBean registrationBean = new ServletRegistrationBean();
-		registrationBean.setServlet(dispatcherServlet);
-		registrationBean.addUrlMappings("/*");
-		registrationBean.setLoadOnStartup(1);
-		return registrationBean;
-	}
-
-	//	@Bean
-	//	IRepositoryFactory repositoryFactory(DaoRegistry theDaoRegistry, RestfulServer theRestfulServer) {
-	//		return rd -> new HapiFhirRepository(theDaoRegistry, rd, theRestfulServer);
-	//	}
 }
