@@ -7,7 +7,7 @@ image:
   # -- the path inside the repository
   repository: hapiproject/hapi
   # -- the image tag. As of v5.7.0, this is the `distroless` flavor by default, add `-tomcat` to use the Tomcat-based image.
-  tag: "v7.6.0@sha256:4771a178e764896c83881c1b3a52bd487e53d06e1acc3653ea0db0c6f6b2b8a1"
+  tag: "v8.2.0-1@sha256:e85ded02f60e25a66e6d9423ea71f3ebc9494e3a69bdd7d7dbfa31b8aa5b2fe9"
   # -- image pullPolicy to use
   pullPolicy: IfNotPresent
 
@@ -241,7 +241,7 @@ curl:
   image:
     registry: docker.io
     repository: curlimages/curl
-    tag: 8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
+    tag: 8.14.1@sha256:9a1ed35addb45476afa911696297f8e115993df459278ed036182dd2cd22b67b
 
 tests:
   # -- whether the service account token should be auto-mounted for the test pods
@@ -300,3 +300,12 @@ extraVolumes: []
 
 # -- Optionally specify extra list of additional volumeMounts
 extraVolumeMounts: []
+
+waitForDatabaseInitContainer:
+  # -- image to use for the init container which waits until the database
+  # is ready to accept connections
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 17.5.0-debian-12-r11@sha256:ac8dd0d6512c4c5fb146c16b1c5f05862bd5f600d73348506ab4252587e7fcc6
+    pullPolicy: IfNotPresent

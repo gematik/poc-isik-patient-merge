@@ -124,7 +124,7 @@ hapi:
         data:
           search_parameter_mode: USE_SEARCH_PARAMETERS # AUTO, USE_SEARCH_PARAMETERS, FILTER_IN_MEMORY
           terminology_parameter_mode: FILTER_IN_MEMORY #  AUTO, USE_VALUE_SET_URL, USE_INLINE_CODES, FILTER_IN_MEMORY
-          profile_mode: OFF # ENFORCED, DECLARED, OPTIONAL, TRUST, OFF
+          profile_mode: DECLARED # ENFORCED, DECLARED, OPTIONAL, TRUST, OFF
 
     cdshooks:
       enabled: true
@@ -196,6 +196,7 @@ hapi:
     ###  !!Extended Lucene/Elasticsearch Indexing is still a experimental feature, expect some features (e.g. _total=accurate) to not work as expected!!
     ###  more information here: https://hapifhir.io/hapi-fhir/docs/server_jpa/elastic.html
     advanced_lucene_indexing: false
+    search_index_full_text_enabled: false
     bulk_export_enabled: false
     bulk_import_enabled: false
     #    language_search_parameter_enabled: true
@@ -215,6 +216,13 @@ hapi:
     mdm_rules_json_location: "mdm-rules.json"
     #    local_base_urls:
     #      - https://hapi.fhir.org/baseR4
+
+    #    pre_expand_value_sets: true
+    #	   enable_task_pre_expand_value_sets: true
+    #    pre_expand_value_sets_default_count: 1000
+    #    pre_expand_value_sets_max_count: 1000
+    #    maximum_expansion_size: 1000
+
     logical_urls:
       - http://terminology.hl7.org/*
       - https://terminology.hl7.org/*

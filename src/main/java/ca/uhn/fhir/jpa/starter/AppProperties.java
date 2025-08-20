@@ -1,6 +1,7 @@
 package ca.uhn.fhir.jpa.starter;
 
 import ca.uhn.fhir.context.FhirVersionEnum;
+import ca.uhn.fhir.jpa.api.config.JpaStorageSettings;
 import ca.uhn.fhir.jpa.api.config.JpaStorageSettings.ClientIdStrategyEnum;
 import ca.uhn.fhir.jpa.api.config.JpaStorageSettings.IdStrategyEnum;
 import ca.uhn.fhir.jpa.model.entity.NormalizedQuantitySearchLevel;
@@ -34,6 +35,7 @@ public class AppProperties {
 	private Boolean mdm_enabled = false;
 	private String mdm_rules_json_location = "mdm-rules.json";
 	private boolean advanced_lucene_indexing = false;
+	private boolean search_index_full_text_enabled = false;
 	private boolean enable_index_of_type = false;
 	private Boolean allow_cascading_deletes = false;
 	private Boolean allow_contains_searches = true;
@@ -100,6 +102,15 @@ public class AppProperties {
 	private boolean userRequestRetryVersionConflictsInterceptorEnabled = false;
 
 	private List<Integer> search_prefetch_thresholds = new ArrayList<>();
+	private Boolean pre_expand_value_sets = true;
+	private Boolean enable_task_pre_expand_value_sets = true;
+	private Integer pre_expand_value_sets_default_count = 1000;
+	private Integer pre_expand_value_sets_max_count = 1000;
+	private Integer maximum_expansion_size = 1000;
+	private JpaStorageSettings.StoreMetaSourceInformationEnum store_meta_source_information =
+			JpaStorageSettings.StoreMetaSourceInformationEnum.NONE;
+
+	private Map<String, RemoteSystem> remote_terminology_service = null;
 
 	public List<String> getCustomInterceptorClasses() {
 		return custom_interceptor_classes;
@@ -275,6 +286,14 @@ public class AppProperties {
 
 	public void setAdvanced_lucene_indexing(boolean theAdvanced_lucene_indexing) {
 		advanced_lucene_indexing = theAdvanced_lucene_indexing;
+	}
+
+	public boolean getSearch_index_full_text_enabled() {
+		return this.search_index_full_text_enabled;
+	}
+
+	public void setSearch_index_full_text_enabled(boolean theSearch_index_full_text_enabled) {
+		search_index_full_text_enabled = theSearch_index_full_text_enabled;
 	}
 
 	public Boolean getAllow_cascading_deletes() {
@@ -678,6 +697,63 @@ public class AppProperties {
 		this.resource_dbhistory_enabled = resource_dbhistory_enabled;
 	}
 
+	public Boolean getPre_expand_value_sets() {
+		return this.pre_expand_value_sets;
+	}
+
+	public void setPre_expand_value_sets(Boolean pre_expand_value_sets) {
+		this.pre_expand_value_sets = pre_expand_value_sets;
+	}
+
+	public Boolean getEnable_task_pre_expand_value_sets() {
+		return this.enable_task_pre_expand_value_sets;
+	}
+
+	public void setEnable_task_pre_expand_value_sets(Boolean enable_task_pre_expand_value_sets) {
+		this.enable_task_pre_expand_value_sets = enable_task_pre_expand_value_sets;
+	}
+
+	public Integer getPre_expand_value_sets_default_count() {
+		return pre_expand_value_sets_default_count;
+	}
+
+	public void setPre_expand_value_sets_default_count(Integer pre_expand_value_sets_default_count) {
+		this.pre_expand_value_sets_default_count = pre_expand_value_sets_default_count;
+	}
+
+	public Integer getPre_expand_value_sets_max_count() {
+		return pre_expand_value_sets_max_count;
+	}
+
+	public void setPre_expand_value_sets_max_count(Integer pre_expand_value_sets_max_count) {
+		this.pre_expand_value_sets_max_count = pre_expand_value_sets_max_count;
+	}
+
+	public Integer getMaximum_expansion_size() {
+		return maximum_expansion_size;
+	}
+
+	public void setMaximum_expansion_size(Integer maximum_expansion_size) {
+		this.maximum_expansion_size = maximum_expansion_size;
+	}
+
+	public Map<String, RemoteSystem> getRemoteTerminologyServicesMap() {
+		return remote_terminology_service;
+	}
+
+	public void setRemote_terminology_service(Map<String, RemoteSystem> remote_terminology_service) {
+		this.remote_terminology_service = remote_terminology_service;
+	}
+
+	public JpaStorageSettings.StoreMetaSourceInformationEnum getStore_meta_source_information() {
+		return store_meta_source_information;
+	}
+
+	public void setStore_meta_source_information(
+			JpaStorageSettings.StoreMetaSourceInformationEnum store_meta_source_information) {
+		this.store_meta_source_information = store_meta_source_information;
+	}
+
 	public static class Cors {
 		private Boolean allow_Credentials = true;
 		private List<String> allowed_origin = List.of("*");
@@ -810,7 +886,7 @@ public class AppProperties {
 		private Boolean database_partition_mode_enabled = false;
 		private Boolean patient_id_partitioning_mode = false;
 		private Integer default_partition_id = 0;
-		private boolean request_tenant_partitioning_mode;
+		private boolean request_tenant_partitioning_mode = true;
 
 		public boolean isRequest_tenant_partitioning_mode() {
 			return request_tenant_partitioning_mode;
@@ -874,11 +950,34 @@ public class AppProperties {
 		}
 	}
 
+	public static class RemoteSystem {
+		private String system;
+		private String url;
+
+		public String getSystem() {
+			return system;
+		}
+
+		public void setSystem(String system) {
+			this.system = system;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+	}
+
 	public static class Subscription {
 
 		private Boolean resthook_enabled = false;
 		private Boolean websocket_enabled = false;
 		private Email email = null;
+		private Integer polling_interval_ms = null;
+		private Boolean immediately_queued = false;
 
 		public Boolean getResthook_enabled() {
 			return resthook_enabled;
@@ -902,6 +1001,22 @@ public class AppProperties {
 
 		public void setEmail(Email email) {
 			this.email = email;
+		}
+
+		public Integer getPolling_interval_ms() {
+			return polling_interval_ms;
+		}
+
+		public void setPolling_interval_ms(Integer polling_interval_ms) {
+			this.polling_interval_ms = polling_interval_ms;
+		}
+
+		public Boolean getImmediately_queued() {
+			return immediately_queued;
+		}
+
+		public void setImmediately_queued(Boolean immediately_queued) {
+			this.immediately_queued = immediately_queued;
 		}
 
 		public static class Email {

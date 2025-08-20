@@ -32,6 +32,7 @@ import ca.uhn.fhir.jpa.model.config.SubscriptionSettings;
 import ca.uhn.fhir.jpa.packages.IPackageInstallerSvc;
 import ca.uhn.fhir.jpa.packages.PackageInstallationSpec;
 import ca.uhn.fhir.jpa.provider.DaoRegistryResourceSupportedSvc;
+import ca.uhn.fhir.jpa.provider.DiffProvider;
 import ca.uhn.fhir.jpa.provider.IJpaSystemProvider;
 import ca.uhn.fhir.jpa.provider.JpaCapabilityStatementProvider;
 import ca.uhn.fhir.jpa.provider.JpaConformanceProviderDstu2;
@@ -74,7 +75,6 @@ import ca.uhn.fhir.validation.ResultSeverityEnum;
 import com.google.common.base.Strings;
 import jakarta.persistence.EntityManagerFactory;
 import de.gematik.provider.PatientMergeOperationProvider;
-import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -292,6 +292,7 @@ public class StarterJpaConfig {
 			ApplicationContext appContext,
 			Optional<IpsOperationProvider> theIpsOperationProvider,
 			Optional<IImplementationGuideOperationProvider> implementationGuideOperationProvider,
+			DiffProvider diffProvider,
 		PatientMergeOperationProvider patientMergeOperationProvider) {
 		RestfulServer fhirServer = new RestfulServer(fhirSystemDao.getContext());
 
@@ -460,6 +461,9 @@ public class StarterJpaConfig {
 
 		// Validation
 		repositoryValidatingInterceptor.ifPresent(fhirServer::registerInterceptor);
+
+		// Diff Provider
+		fhirServer.registerProvider(diffProvider);
 
 		// register custom interceptors
 		registerCustomInterceptors(fhirServer, appContext, appProperties.getCustomInterceptorClasses());
