@@ -265,17 +265,17 @@ hapi:
     search_prefetch_thresholds: 13,503,2003,-1
 
     # comma-separated package names, will be @ComponentScan'ed by Spring to allow for creating custom Spring beans
-    #custom-bean-packages:
+    custom-bean-packages: de.gematik
     
     # comma-separated list of fully qualified interceptor classes. 
     # classes listed here will be fetched from the Spring context when combined with 'custom-bean-packages', 
     # or will be instantiated via reflection using an no-arg contructor; then registered with the server  
-    #custom-interceptor-classes:  
+    custom-interceptor-classes: de.gematik.interceptor.SubscriptionCreateHandshakeInterceptor
 
     # comma-separated list of fully qualified provider classes. 
     # classes listed here will be fetched from the Spring context when combined with 'custom-bean-packages', 
     # or will be instantiated via reflection using an no-arg contructor; then registered with the server  
-    #custom-provider-classes:  
+    custom-provider-classes:  de.gematik.provider.PatientMergeOperationProvider
     # specify what should be stored in meta.source based on StoreMetaSourceInformationEnum defaults to NONE
     # store_meta_source_information: NONE
     # Threadpool size for BATCH'ed GETs in a bundle.

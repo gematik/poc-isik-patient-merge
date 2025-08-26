@@ -26,7 +26,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Import;
 
 @ServletComponentScan(basePackageClasses = {RestfulServer.class})
-@SpringBootApplication(scanBasePackages  = {"de.gematik.provider", "ca.uhn.fhir.jpa.starter"}, exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
+@SpringBootApplication(exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
+@org.springframework.scheduling.annotation.EnableScheduling
 @Import({
 	StarterCrR4Config.class,
 	StarterCrDstu3Config.class,
