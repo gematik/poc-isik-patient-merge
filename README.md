@@ -21,6 +21,21 @@
 ## <a name='AbouttheProject'></a>About the Project
 This POC aims to prove a Patient merge Notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
 
+Only **REST-hook subscriptions** are mandatory in ISiK and have been implemented in this POC 
+
+### Handshake
+When a new subscription is created with status `requested`, the server immediately sends a **handshake notification** to the subscriber’s endpoint.  
+- If the handshake succeeds (2xx HTTP response), the subscription is activated (`status=active`).  
+- If it fails (connection error or non-2xx response), the subscription is set to `error`.  
+
+This ensures that only reachable subscribers become active.
+
+### Heartbeat
+For active subscriptions, the server supports **heartbeat notifications** according to the backport IG.  
+- The heartbeat interval is read from the `backport-heartbeat-period` extension on the subscription channel.  
+- If due, the server sends an empty notification bundle of type `heartbeat` to the subscriber’s endpoint.  
+- This allows the client to detect broken connections even if no real events occur.  
+
 ### <a name='Prerequisites'></a>Prerequisites
 
 - Postman to use the Postman Collection of the poc-server
