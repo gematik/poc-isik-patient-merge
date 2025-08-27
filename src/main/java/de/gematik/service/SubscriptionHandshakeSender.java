@@ -19,32 +19,66 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service responsible for performing a handshake with a FHIR Subscription endpoint.
+ * Finds subscriptions by marker, builds handshake bundles, sends them to the endpoint,
+ * and finalizes the subscription status asynchronously.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionHandshakeSender {
 
+    /**
+     * Registry for accessing FHIR resource DAOs.
+     */
 	private final DaoRegistry daoRegistry;
+
+    /**
+     * FHIR context for resource parsing and encoding.
+     */
 	private final ca.uhn.fhir.context.FhirContext fhirContext;
 
-	// NEW: delegate that commits in its own transaction
+    /**
+     * Delegate responsible for finalizing subscription status in its own transaction.
+     */
 	private final SubscriptionHandshakeFinalizer finalizer;
 
-	// run the finalizer off-thread to be safely outside the request context
+    /**
+     * Executor for running the finalizer off-thread, outside the request context.
+     */
 	private final java.util.concurrent.Executor exec = java.util.concurrent.Executors.newSingleThreadExecutor();
 
-	// RestTemplate with sensible timeouts
+    /**
+     * Creates a RestTemplate with sensible timeouts for HTTP requests.
+     *
+     * @return configured RestTemplate instance
+     */
 	private static RestTemplate createRestTemplate() {
 		SimpleClientHttpRequestFactory f = new SimpleClientHttpRequestFactory();
 		f.setConnectTimeout(5_000);
 		f.setReadTimeout(5_000);
 		return new RestTemplate(f);
 	}
+
+    /**
+     * RestTemplate instance for sending HTTP requests.
+     */
 	private final RestTemplate restTemplate = createRestTemplate();
 
+    /**
+     * Base URL of the FHIR server, configurable via application properties.
+     */
 	@Value("${fhir.server.base:http://localhost:8080/fhir}")
 	private String serverBaseUrl;
 
+    /**
+     * Finds a Subscription by marker (system and code) and attempts a handshake.
+     * If found, initiates the handshake and finalizes the status.
+     *
+     * @param system the tag system to search for
+     * @param code the tag code to search for
+     */
 	public void findByMarkerAndHandshake(String system, String code) {
 		IFhirResourceDao<Subscription> subDao = daoRegistry.getResourceDao(Subscription.class);
 		SystemRequestDetails srd = new SystemRequestDetails();
@@ -64,6 +98,15 @@ public class SubscriptionHandshakeSender {
 		attemptHandshakeAndFinalize(id, system, code);
 	}
 
+    /**
+     * Attempts to perform a handshake with the subscription endpoint and finalizes the status.
+     * Only proceeds if the subscription is in OFF or REQUESTED status and is a REST-hook.
+     * The finalization is executed asynchronously.
+     *
+     * @param subscriptionId the ID of the Subscription resource
+     * @param markSys the tag system to identify the subscription
+     * @param markCode the tag code to identify the subscription
+     */
 	private void attemptHandshakeAndFinalize(String subscriptionId, String markSys, String markCode) {
 		IFhirResourceDao<Subscription> subDao = daoRegistry.getResourceDao(Subscription.class);
 		SystemRequestDetails srd = new SystemRequestDetails();
@@ -110,6 +153,13 @@ public class SubscriptionHandshakeSender {
 		exec.execute(() -> finalizer.finalizeStatus(subscriptionId, markSys, markCode, finalOk));
 	}
 
+    /**
+     * Builds a handshake Bundle for the given Subscription.
+     * The bundle contains a Parameters resource with handshake details.
+     *
+     * @param sub the Subscription resource
+     * @return the constructed handshake Bundle
+     */
 	private Bundle buildHandshakeBundle(Subscription sub) {
 		Bundle b = new Bundle();
 		b.setType(Bundle.BundleType.HISTORY);
