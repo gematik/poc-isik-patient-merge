@@ -17,11 +17,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Interceptor
 @RequiredArgsConstructor
 public class SubscriptionCreateHandshakeInterceptor {
-
-	private final SubscriptionHandshakeSender handshakeSender; // dein Service mit RestTemplate
+	private static final String MARK_SYS = "urn:gematik:handshake";
+	private static final String MARK_CODE_PREFIX = "pending-";
+	private final SubscriptionHandshakeSender handshakeSender;
 
 	@Hook(Pointcut.STORAGE_PRESTORAGE_RESOURCE_CREATED)
-	public void onCreate(IBaseResource resource, RequestDetails rd, TransactionDetails tx) {
+	public void onPreStorageCreate(IBaseResource resource,
+		RequestDetails rd,
+		TransactionDetails tx) {
 		if (!(resource instanceof Subscription sub)) {
 			return;
 		}
@@ -29,18 +32,17 @@ public class SubscriptionCreateHandshakeInterceptor {
 			return;
 		}
 
-		// nur wenn Client 'requested' schickt → wir setzen auf 'off'
-		if (sub.getStatus() == Subscription.SubscriptionStatus.REQUESTED) {
-			sub.setStatus(Subscription.SubscriptionStatus.OFF);
+		// prevent auto-activation
+		sub.setStatus(Subscription.SubscriptionStatus.OFF);
 
-			// NACH Commit Handshake versuchen; der HandshakeSender setzt dann active/error
-			TransactionSynchronizationManager.registerSynchronization(
-				new TransactionSynchronization() {
-					@Override
-					public void afterCommit() {
-						handshakeSender.attemptHandshakeAndUpdate(sub);
-					}
-				});
-		}
+		// attach a one-time tag to find it post-commit
+		String token = MARK_CODE_PREFIX + java.util.UUID.randomUUID();
+		sub.getMeta().addTag().setSystem(MARK_SYS).setCode(token);
+
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override public void afterCommit() {
+				handshakeSender.findByMarkerAndHandshake(MARK_SYS, token); // will remove tag inside
+			}
+		});
 	}
 }
