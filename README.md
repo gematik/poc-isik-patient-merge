@@ -1,4 +1,4 @@
-<img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/> 
+<img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/>
 
 # Prove of Concept for ISiK Patient merge
 
@@ -37,7 +37,7 @@ This POC aims to prove a Patient merge Notification based on FHIR Subscription T
 POC is built on top of [HAPI-FHIR](https://github.com/hapifhir/hapi-fhir-jpaserver-starter).
 
 #### <a name='FastTrackRunninglocally'></a>Fast Track Running locally
- 
+
  Using jetty
 ```bash
 mvn clean jetty:run -U
@@ -47,16 +47,16 @@ For more information on running see [HAPI-FHIR](https://github.com/hapifhir/hapi
 ### <a name='Howtotest'></a>How to test
 The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`):
 
-1. create patients which should be merged 
+1. create patients which should be merged
    1. (Postman: 1. Send Patients)
-1. Subscribe to Topic: "http://hl7.org/SubscriptionTopic/patient-merge" 
+1. Subscribe to Topic: "http://hl7.org/SubscriptionTopic/patient-merge"
    1. (Postman: 2. Subscribe to Patient merge topic)
    2. modify `.endpoint` to your FHIR-Endpoint which should receive the notifications, Postman Postman mock-server can be used as test-endpoint
 1. trigger a patient merge `$patient-merge`with source and target patient
    2.  (Postman: 3. merge patients)
 1. receive a notification Bundle
 
-**Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.  
+**Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.
 This has no impact on the delivery of the notification.
 
 ### <a name='Components'></a>Components
@@ -73,5 +73,5 @@ Postman Collection with examples (folder: `PostmanCollection`)
 
 **Team Data – ISiK and ISiP**
 
-For issues and requests please refer to: 
-https://service.gematik.de/servicedesk/customer/portal/16 
+For issues and requests please refer to:
+https://service.gematik.de/servicedesk/customer/portal/16
