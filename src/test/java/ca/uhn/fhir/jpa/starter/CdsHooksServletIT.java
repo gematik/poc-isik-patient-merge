@@ -1,7 +1,6 @@
 package ca.uhn.fhir.jpa.starter;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.cr.config.RepositoryConfig;
 import ca.uhn.fhir.jpa.api.dao.DaoRegistry;
 import ca.uhn.fhir.jpa.searchparam.config.NicknameServiceConfig;
 import ca.uhn.fhir.jpa.starter.cdshooks.StarterCdsHooksConfig;
@@ -9,7 +8,6 @@ import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.ServerValidationModeEnum;
 import ca.uhn.hapi.fhir.cdshooks.api.ICdsServiceRegistry;
-import ca.uhn.hapi.fhir.cdshooks.config.CdsHooksConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -22,6 +20,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opencds.cqf.fhir.cr.hapi.config.CrCdsHooksConfig;
+import org.opencds.cqf.fhir.cr.hapi.config.RepositoryConfig;
+import org.opencds.cqf.fhir.cr.hapi.config.test.TestCdsHooksConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -39,7 +40,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 		Application.class,
 		NicknameServiceConfig.class,
 		RepositoryConfig.class,
-		CdsHooksConfig.class,
+		TestCdsHooksConfig.class,
+		CrCdsHooksConfig.class,
 		StarterCdsHooksConfig.class
 	}, properties = {
 	"spring.profiles.include=storageSettingsTest",
@@ -78,7 +80,7 @@ class CdsHooksServletIT implements IServerSupport {
 		ourCdsBase = "http://localhost:" + port + "/cds-services";
 
 		var cdsServicesJson = myCdsServiceRegistry.getCdsServicesJson();
-		if (cdsServicesJson != null && cdsServicesJson.getServices() != null && !cdsServicesJson.getServices().isEmpty()) {
+		if (cdsServicesJson != null && cdsServicesJson.getServices() != null) {
 			var services = cdsServicesJson.getServices();
 			for (int i = 0; i < services.size(); i++) {
 				myCdsServiceRegistry.unregisterService(services.get(i).getId(), "CR");
@@ -89,12 +91,12 @@ class CdsHooksServletIT implements IServerSupport {
 	private Boolean hasCdsServices() throws IOException {
 		var response = callCdsServicesDiscovery();
 
-		// NOTE: this is looking for a repsonse that indicates there are CDS services availalble.
+		// NOTE: this is looking for a response that indicates there are CDS services available.
 		// And empty response looks like: {"services": []}
-		// Looking at the actual response string consumes the InputStream which has side-effects, making it tricky to compare the actual contents.
-		// Hence the test just looks at the length to make this determination.
+		// Looking at the actual response string consumes the InputStream which has side effects, making it tricky to compare the actual contents.
+		// Hence, the test just looks at the length to make this determination.
 		// The actual response has newlines in it which vary in size on some systems, but a value of 25 seems to work across linux/mac/windows
-		// to ensure the repsonse actually contains CDS services in it
+		// to ensure the response actually contains CDS services in it
 		return response.getEntity().getContentLength() > 25 || response.getEntity().isChunked();
 	}
 
@@ -116,25 +118,26 @@ class CdsHooksServletIT implements IServerSupport {
 	}
 
 	@Test
-	void testCdsHooks() throws IOException, InterruptedException {
+	void testCdsHooks() throws IOException {
 		loadBundle("r4/HelloWorld-Bundle.json", ourCtx, ourClient);
-		await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> hasCdsServices());
-		var cdsRequest = "{\n" +
-			"  \"hookInstance\": \"12345\",\n" +
-			"  \"hook\": \"patient-view\",\n" +
-			"  \"context\": {\n" +
-			"    \"userId\": \"Practitioner/example\",\n" +
-			"    \"patientId\": \"Patient/example-hello-world\"\n" +
-			"  },\n" +
-			"  \"prefetch\": {\n" +
-			"    \"item1\": {\n" +
-			"      \"resourceType\": \"Patient\",\n" +
-			"      \"id\": \"example-hello-world\",\n" +
-			"      \"gender\": \"male\",\n" +
-			"      \"birthDate\": \"2000-01-01\"\n" +
-			"    }\n" +
-			"  }\n" +
-			"}";
+		await().atMost(10000, TimeUnit.MILLISECONDS).until(this::hasCdsServices);
+		var cdsRequest = """
+			{
+			  "hookInstance": "12345",
+			  "hook": "patient-view",
+			  "context": {
+			    "userId": "Practitioner/example",
+			    "patientId": "Patient/example-hello-world"
+			  },
+			  "prefetch": {
+			    "item1": {
+			      "resourceType": "Patient",
+			      "id": "example-hello-world",
+			      "gender": "male",
+			      "birthDate": "2000-01-01"
+			    }
+			  }
+			}""";
 		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 			HttpPost request = new HttpPost(ourCdsBase + "/hello-world");
 			request.setEntity(new StringEntity(cdsRequest));
@@ -156,7 +159,7 @@ class CdsHooksServletIT implements IServerSupport {
 	@Test
 	void testRec10() throws IOException {
 		loadBundle("r4/opioidcds-10-order-sign-bundle.json", ourCtx, ourClient);
-		await().atMost(20000, TimeUnit.MILLISECONDS).until(() -> hasCdsServices());
+		await().atMost(20000, TimeUnit.MILLISECONDS).until(this::hasCdsServices);
 		var fhirServer = "  \"fhirServer\": " + "\"" + ourServerBase + "\"" + ",\n";
 		var cdsRequest = "{\n" +
 			"  \"hookInstance\": \"055b009c-4a7d-4db4-a35e-0e5198918ed1\",\n" +

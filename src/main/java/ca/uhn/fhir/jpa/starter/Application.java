@@ -26,7 +26,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Import;
 
 @ServletComponentScan(basePackageClasses = {RestfulServer.class})
-@SpringBootApplication(scanBasePackages  = {"de.gematik.provider", "ca.uhn.fhir.jpa.starter"}, exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
+@SpringBootApplication(exclude = {ElasticsearchRestClientAutoConfiguration.class, ThymeleafAutoConfiguration.class})
+@org.springframework.scheduling.annotation.EnableScheduling
 @Import({
 	StarterCrR4Config.class,
 	StarterCrDstu3Config.class,
@@ -45,10 +46,9 @@ public class Application extends SpringBootServletInitializer {
 
 		SpringApplication.run(Application.class, args);
 
-		// Server is now accessible at eg. http://localhost:8080/fhir/metadata
+		// Server is now accessible at e.g. http://localhost:8080/fhir/metadata
 		// UI is now accessible at http://localhost:8080/
 	}
-
 
 	@Autowired
 	AutowireCapableBeanFactory beanFactory;
@@ -64,5 +64,4 @@ public class Application extends SpringBootServletInitializer {
 
 		return servletRegistrationBean;
 	}
-
 }

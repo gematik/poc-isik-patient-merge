@@ -1,4 +1,4 @@
-<img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/> 
+<img align="right" width="250" height="47" src="/material/Gematik_Logo_Flag.svg"/> <br/>
 
 # Prove of Concept for ISiK Patient merge
 
@@ -21,6 +21,21 @@
 ## <a name='AbouttheProject'></a>About the Project
 This POC aims to prove a Patient merge Notification based on FHIR Subscription Topics (see [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/)).
 
+Only **REST-hook subscriptions** are mandatory in ISiK and have been implemented in this POC 
+
+### Handshake
+When a new subscription is created with status `requested`, the server immediately sends a **handshake notification** to the subscriber’s endpoint.  
+- If the handshake succeeds (2xx HTTP response), the subscription is activated (`status=active`).  
+- If it fails (connection error or non-2xx response), the subscription is set to `error`.  
+
+This ensures that only reachable subscribers become active.
+
+### Heartbeat
+For active subscriptions, the server supports **heartbeat notifications** according to the backport IG.  
+- The heartbeat interval is read from the `backport-heartbeat-period` extension on the subscription channel.  
+- If due, the server sends an empty notification bundle of type `heartbeat` to the subscriber’s endpoint.  
+- This allows the client to detect broken connections even if no real events occur.  
+
 ### <a name='Prerequisites'></a>Prerequisites
 
 - Postman to use the Postman Collection of the poc-server
@@ -37,7 +52,7 @@ This POC aims to prove a Patient merge Notification based on FHIR Subscription T
 POC is built on top of [HAPI-FHIR](https://github.com/hapifhir/hapi-fhir-jpaserver-starter).
 
 #### <a name='FastTrackRunninglocally'></a>Fast Track Running locally
- 
+
  Using jetty
 ```bash
 mvn clean jetty:run -U
@@ -47,16 +62,16 @@ For more information on running see [HAPI-FHIR](https://github.com/hapifhir/hapi
 ### <a name='Howtotest'></a>How to test
 The following steps simulate the merge notification workflow (see Postman Collection in folder `PostmanCollection`):
 
-1. create patients which should be merged 
+1. create patients which should be merged
    1. (Postman: 1. Send Patients)
-1. Subscribe to Topic: "http://hl7.org/SubscriptionTopic/patient-merge" 
+1. Subscribe to Topic: "http://hl7.org/SubscriptionTopic/patient-merge"
    1. (Postman: 2. Subscribe to Patient merge topic)
    2. modify `.endpoint` to your FHIR-Endpoint which should receive the notifications, Postman Postman mock-server can be used as test-endpoint
 1. trigger a patient merge `$patient-merge`with source and target patient
    2.  (Postman: 3. merge patients)
 1. receive a notification Bundle
 
-**Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.  
+**Known issue:**  if you are using the Mock Servers from Postman, a stacktrace will be shown in hapi, as the response has the content-type: text/html, and application/fhir+json or application/fhir+xml is expected.
 This has no impact on the delivery of the notification.
 
 ### <a name='Components'></a>Components
@@ -73,5 +88,5 @@ Postman Collection with examples (folder: `PostmanCollection`)
 
 **Team Data – ISiK and ISiP**
 
-For issues and requests please refer to: 
-https://service.gematik.de/servicedesk/customer/portal/16 
+For issues and requests please refer to:
+https://service.gematik.de/servicedesk/customer/portal/16
